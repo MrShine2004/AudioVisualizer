@@ -3,10 +3,10 @@
 // КОНСТРУКТОР ПО УМОЛЧАНИЮ
 Camera::Camera()
 {
-    position = vec3(1, 1, -216);
-    observationPoint = vec3(250, 40, -116);
-    dMove = vec3(250, 20, -116);
-    distanceToTarget = 700;
+    position = vec3(1, 1, -2316);
+    observationPoint = vec3(0, 0, -2316);
+    dMove = vec3(0, 0, -216);
+    distanceToTarget = 1000;
     vec3 v1 = position;
     vec3 v2 = vec3(v1.x, 0, v1.z);
     float cos_y = dot(normalize(v1), normalize(v2));
@@ -52,6 +52,18 @@ void Camera::move(float dx, float dz)
     recalculateViewMatrix();
 }
 
+void Camera::move(float dy)
+{
+    dy = dy * moveSpeed;
+
+    // Движение по вертикали (вдоль оси y)
+    dMove += vec3(0, dy, 0);
+
+    // Пересчитываем матрицу вида
+    recalculateViewMatrix();
+}
+
+
 // ПОВЕРНУТЬ В ГОРИЗОНТАЛЬНОЙ И ВЕРТИКАЛЬНОЙ ПЛОСКОСТИ (УГОЛ ЗАДАЕТСЯ В ГРАДУСАХ)
 void Camera::rotate(float horizAngle, float vertAngle)
 {
@@ -59,6 +71,23 @@ void Camera::rotate(float horizAngle, float vertAngle)
     // Пример:
     horizontalAngle += horizAngle * rotateSpeed;
     verticalAngle += vertAngle * rotateSpeed;
+
+    if (verticalAngle < 1) {
+        verticalAngle = 1;
+    }
+    if (verticalAngle > 179) {
+        verticalAngle = 179;
+    }
+    // Пересчитываем матрицу вида
+    recalculateViewMatrix();
+}
+
+void Camera::center()
+{
+    // Реализация поворота камеры
+    // Пример:
+    horizontalAngle = 90;
+    verticalAngle = 90;
 
     if (verticalAngle < 1) {
         verticalAngle = 1;
@@ -83,6 +112,7 @@ void Camera::zoom(float dR)
     // Пересчитываем матрицу вида
     recalculateViewMatrix();
 }
+
 
 float Camera::getZoomSpeed()
 {

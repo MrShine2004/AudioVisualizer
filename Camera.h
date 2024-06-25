@@ -28,8 +28,10 @@ public:
 	glm::mat4& getViewMatrix();
 	// передвинуть камеру и точку наблюдения в горизонтальной плоскости (OXZ)
 	void move(float dx, float dz);
+	void move(float dy);
 	// повернуть в горизонтальной и вертикальной плоскости (угол задается в градусах)
 	void rotate(float horizAngle, float vertAngle);
+	void center();
 	// приблизить/удалить камеру к/от точки наблюдения
 	void zoom(float dR);
 	float getZoomSpeed();
@@ -55,7 +57,7 @@ private:
 
 
 	float zoomSpeed = 5;             // Скорость изменения зума
-	float moveSpeed = 5;             // Скорость движения камеры
+	float moveSpeed = 15;             // Скорость движения камеры
 	float rotateSpeed = 1;
 
 

@@ -1,4 +1,4 @@
-#include <windows.h>
+п»ї#include <windows.h>
 #include "stdio.h"
 #include "iostream"
 
@@ -17,22 +17,22 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "GraphicObject.h"
+#include "Audio.h"
 
 #include <Mmsystem.h>
-#include <iostream>
+#include <audioclient.h>
+#include <mmdeviceapi.h>
+#include <functiondiscoverykeys_devpkey.h>
 
 using namespace glm;
 using namespace std;
 
-HWAVEIN hWaveIn;
-WAVEFORMATEX waveform;
-WAVEHDR waveHdr;
 
 
-// функция обработки вращения колесика мышки
+// С„СѓРЅРєС†РёСЏ РѕР±СЂР°Р±РѕС‚РєРё РІСЂР°С‰РµРЅРёСЏ РєРѕР»РµСЃРёРєР° РјС‹С€РєРё
 void mouseWheel(int wheel, int direction, int x, int y)
 {
-    // определяем, на сколько необходимо приблизить/удалить камеру
+    // РѕРїСЂРµРґРµР»СЏРµРј, РЅР° СЃРєРѕР»СЊРєРѕ РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРёР±Р»РёР·РёС‚СЊ/СѓРґР°Р»РёС‚СЊ РєР°РјРµСЂСѓ
     float delta = camera.getZoomSpeed() * -direction;// ...;
     camera.zoom(delta);
 }
@@ -42,55 +42,121 @@ void CALLBACK waveInProc(HWAVEIN hwi, UINT uMsg, DWORD dwInstance, DWORD dwParam
     switch (uMsg)
     {
     case WIM_DATA:
-        // Данные готовы
-        // Вы можете здесь обрабатывать данные в waveHdr.lpData
         // MicroColor = vec4(std::abs((float)waveHdr.lpData[0]) / 327.0f, std::abs((float)waveHdr.lpData[1]) / 327.0f, std::abs((float)waveHdr.lpData[2]) / 327.0f, 1);
         //cout << std::abs((float)waveHdr.lpData[0]) / 327.0f << " " << std::abs((float)waveHdr.lpData[1]) / 327.0f << " " << std::abs((float)waveHdr.lpData[2]) / 327.0f << endl;
-        if (SecondMode == 8) {
-            for (int i = 0; i < sizeBox; i++) {
-                PositionsMicro[i] = ((float)waveHdr.lpData[i]);
-            }
+        /*float max = 0;
+        float min = 0;
+        for (int i = 0; i < waveHdr.dwBytesRecorded; i++)
+        {
+            if (max < waveHdr.lpData[i])
+                max = waveHdr.lpData[i];
+            if (min > waveHdr.lpData[i])
+                min = waveHdr.lpData[i];
         }
-        if (SecondMode == 9) {
-            for (int i = 0; i < sizeBox; i++) {
-                PositionsMicro[i] = abs((float)waveHdr.lpData[i]);
+        cout << max << " " << min << endl;*/
+        // РџСЂРёРјРµРЅСЏРµРј С„РёР»СЊС‚СЂ Р¤Р’Р§ Рє РґР°РЅРЅС‹Рј Р·РІСѓРєРѕРІРѕРіРѕ Р±СѓС„РµСЂР°
+
+               //waveHdr.lpData[i] = 0;//waveHdr.lpData[i-1];
+
+        if (SecondMode == 8) 
+        {
+
+        }   
+        if (SecondMode == 9) 
+        {
+            //applyButterworthFilter(cutFrq, 4);
+            // РљРѕСЌС„С„РёС†РёРµРЅС‚С‹ С„РёР»СЊС‚СЂР° Р‘Р°С‚С‚РµСЂРІРѕСЂС‚Р°
+            //std::vector<double> bCoeffs = { 0.6992, -5.5937, 19.5780, -39.1559, 48.9449, -39.1559, 19.5780, -5.5937, 0.6992 };
+            //std::vector<double> aCoeffs = { 1.0000, -7.2852, 23.2495, -42.4501, 48.4994, -35.5033, 16.2615, -4.2607, 0.4889 };
+
+
+            /*std::vector<double> bCoeffs = { 0.0016, 0.0065, 0.0097, 0.0065, 0.0016 };
+            std::vector<double> aCoeffs = { 1.0000, -2.8072, 3.0833, -1.5484, 0.2982 };*/
+
+            //std::vector<double> bCoeffs = { 0.0081, 0.0242, 0.0242, 0.0081 };
+            //std::vector<double> aCoeffs = { 1.0000, -2.0870, 1.5466, -0.3950 };
+
+            std::vector<double> bCoeffs = { 0.0016, 0.0065, 0.0097, 0.0065, 0.0016 };
+            std::vector<double> aCoeffs = { 1.0000, -2.8072, 3.0833, -1.5484, 0.2982 };
+
+            std::vector<double> bCoeffs2 = {
+                0.0016, 0.0001, -0.0011, -0.0027, -0.0041, -0.0041, -0.0021, 0.0020, 0.0072, 0.0115, 0.0125,
+                0.0082, -0.0015, -0.0148, -0.0273, -0.0331, -0.0270, -0.0056, 0.0305, 0.0765, 0.1239, 0.1631,
+                0.1852, 0.1852, 0.1631, 0.1239, 0.0765, 0.0305, -0.0056, -0.0270, -0.0331, -0.0273, -0.0148,
+                -0.0015, 0.0082, 0.0125, 0.0115, 0.0072, 0.0020, -0.0021, -0.0041, -0.0041, -0.0027, -0.0011,
+                0.0001, 0.0016
+            };
+
+
+            // РџСЂРёРјРµРЅСЏРµРј С„РёР»СЊС‚СЂ Р‘Р°С‚С‚РµСЂРІРѕСЂС‚Р° Рє РІС…РѕРґРЅРѕРјСѓ СЃРёРіРЅР°Р»Сѓ
+            if (filterMode == 0)
+            {
+                applyButterworthFilter(waveHdr, bCoeffs, aCoeffs);
             }
+
+            if (filterMode == 1)
+            {
+                applyKIHFilter(waveHdr, bCoeffs2);
+            }
+            //applyHighPassFilterToBuffer(waveHdr.lpData, waveHdr.dwBytesRecorded, 44100, cutFrq);
         }
-        // Добавляем буфер обратно в очередь захвата аудио
+        for (int i = 0; i < waveHdr.dwBytesRecorded; ++i) {
+            visualize[i] = waveHdr.lpData[i];
+        }
+        Pictured = 0;
+        if (Out) {
+            playAudioFromBuffer(waveHdr);
+        }
         MMRESULT result = waveInAddBuffer(hwi, &waveHdr, sizeof(WAVEHDR));
         if (result != MMSYSERR_NOERROR) {
-            // Обработка ошибки
+            
         }
         break;
     }
 }
 
+
+
+IAudioClient* pAudioClient = nullptr;
+
+void CALLBACK AudioCaptureCallback(HRESULT hr, DWORD flags, DWORD64 devicePosition, DWORD64 systemPosition, void* userData)
+{
+    // Р­С‚Рѕ РІР°С€Р° С„СѓРЅРєС†РёСЏ РѕР±СЂР°С‚РЅРѕРіРѕ РІС‹Р·РѕРІР° РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё РґР°РЅРЅС‹С… РёР· Р±СѓС„РµСЂР°
+    // Р’ СЌС‚РѕР№ С„СѓРЅРєС†РёРё РІС‹ РјРѕР¶РµС‚Рµ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ РґР°РЅРЅС‹Рµ, Р·Р°РїРёСЃР°РЅРЅС‹Рµ РІ Р±СѓС„РµСЂ
+    std::cout << "Buffer filled, process captured audio here..." << std::endl;
+}
+
+
+
 void reshape(int w, int h)
 {
-    // установить новую область просмотра, равную всей области окна
+    // СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РЅРѕРІСѓСЋ РѕР±Р»Р°СЃС‚СЊ РїСЂРѕСЃРјРѕС‚СЂР°, СЂР°РІРЅСѓСЋ РІСЃРµР№ РѕР±Р»Р°СЃС‚Рё РѕРєРЅР°
     glViewport(0, 0, w, h);
-    // устанавливаем матрицу проекции
+    // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РјР°С‚СЂРёС†Сѓ РїСЂРѕРµРєС†РёРё
     camera.setProjectionMatrix(35.0f, (float)w / h, 1.0f, 50000.0f);
 }
 
-// основная функция
+// РѕСЃРЅРѕРІРЅР°СЏ С„СѓРЅРєС†РёСЏ
 void main(int argc, char** argv)
 {
-    // инициализация библиотеки GLUT
+    int audiochoise = 0;
+    cout << "Choose audio output decice: ";
+    cin >> audiochoise;
+    // РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Р±РёР±Р»РёРѕС‚РµРєРё GLUT
     glutInit(&argc, argv);
-    // инициализация дисплея (формат вывода)
+    // РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РґРёСЃРїР»РµСЏ (С„РѕСЂРјР°С‚ РІС‹РІРѕРґР°)
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL | GLUT_MULTISAMPLE);
-    // требования к версии OpenGL (версия 3.3 без поддержки обратной совместимости)
+    // С‚СЂРµР±РѕРІР°РЅРёСЏ Рє РІРµСЂСЃРёРё OpenGL (РІРµСЂСЃРёСЏ 3.3 Р±РµР· РїРѕРґРґРµСЂР¶РєРё РѕР±СЂР°С‚РЅРѕР№ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё)
     glutInitContextVersion(3, 3);
     glutInitContextProfile(GLUT_CORE_PROFILE);
-    // устанавливаем верхний левый угол окна
+    // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РІРµСЂС…РЅРёР№ Р»РµРІС‹Р№ СѓРіРѕР» РѕРєРЅР°
     glutInitWindowPosition(300, 100);
-    // устанавливаем размер окна
+    // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЂР°Р·РјРµСЂ РѕРєРЅР°
     glutInitWindowSize(800, 600);
-    // создание окна
+    // СЃРѕР·РґР°РЅРёРµ РѕРєРЅР°
     glutCreateWindow("laba_01");
 
-    // инициализация GLEW 
+    // РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ GLEW 
     GLenum err = glewInit();
     if (GLEW_OK != err)
     {
@@ -98,117 +164,140 @@ void main(int argc, char** argv)
         return;
     }
 
-    // определение текущей версии OpenGL
+    // РѕРїСЂРµРґРµР»РµРЅРёРµ С‚РµРєСѓС‰РµР№ РІРµСЂСЃРёРё OpenGL
     printf("OpenGL Version = %s\n\n", glGetString(GL_VERSION));
 
-    // загрузка шейдера
+    // Р·Р°РіСЂСѓР·РєР° С€РµР№РґРµСЂР°
     shader.load("SHADER\\Example.vsh", "SHADER\\Example.fsh");
 
     InitializingObjects();
 
-    // инициализация захвата аудио
-    waveform.wFormatTag = WAVE_FORMAT_PCM;
-    waveform.nChannels = 1;
-    waveform.nSamplesPerSec = 5000;
-    waveform.wBitsPerSample = 16;
-    waveform.nBlockAlign = waveform.nChannels * waveform.wBitsPerSample / 8;
-    waveform.nAvgBytesPerSec = waveform.nSamplesPerSec * waveform.nBlockAlign;
-    waveform.cbSize = 0;
 
-    /*
-    waveform.wFormatTag = WAVE_FORMAT_PCM;
-    waveform.nChannels = 1;
-    waveform.nSamplesPerSec = 44100;
-    waveform.wBitsPerSample = 16;
-    waveform.nBlockAlign = waveform.nChannels * waveform.wBitsPerSample / 8;
-    waveform.nAvgBytesPerSec = waveform.nSamplesPerSec * waveform.nBlockAlign;
-    waveform.cbSize = 0;
-    */
-
-
-    MMRESULT result = waveInOpen(&hWaveIn, WAVE_MAPPER, &waveform, (DWORD_PTR)&waveInProc, 0, CALLBACK_FUNCTION);
-    if (result != MMSYSERR_NOERROR)
+    if (audiochoise == 0)
     {
-        std::cerr << "Failed to open audio device." << std::endl;
-        return;
+        // РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Р·Р°С…РІР°С‚Р° Р°СѓРґРёРѕ
+        waveform.wFormatTag = WAVE_FORMAT_PCM;
+        waveform.nChannels = 1;
+        waveform.nSamplesPerSec = 48000;
+        waveform.wBitsPerSample = 16;
+        waveform.nBlockAlign = waveform.nChannels * waveform.wBitsPerSample / 8;
+        waveform.nAvgBytesPerSec = waveform.nSamplesPerSec * waveform.nBlockAlign;
+        waveform.cbSize = 0;
+
+
+        result = waveInOpen(&hWaveIn, WAVE_MAPPER, &waveform, (DWORD_PTR)&waveInProc, 0, CALLBACK_FUNCTION);
+        if (result != MMSYSERR_NOERROR)
+        {
+            std::cerr << "Failed to open audio device." << std::endl;
+            return;
+        }
+
+        // РќР°С‡Р°Р»Рѕ Р·Р°С…РІР°С‚Р° Р°СѓРґРёРѕ
+        waveHdr.lpData = new char[sizeBox];
+        waveHdr.dwBufferLength = sizeBox;
+        waveHdr.dwBytesRecorded = 0;
+        waveHdr.dwUser = 0;
+        waveHdr.dwFlags = 0;
+        waveHdr.dwLoops = 0;
+
+        result = waveInPrepareHeader(hWaveIn, &waveHdr, sizeof(WAVEHDR));
+        if (result != MMSYSERR_NOERROR)
+        {
+            std::cerr << "Failed to prepare audio header." << std::endl;
+            waveInClose(hWaveIn);
+            delete[] waveHdr.lpData;
+            return;
+        }
+
+        result = waveInAddBuffer(hWaveIn, &waveHdr, sizeof(WAVEHDR));
+        if (result != MMSYSERR_NOERROR)
+        {
+            std::cerr << "Failed to add buffer to audio device." << std::endl;
+            waveInClose(hWaveIn);
+            delete[] waveHdr.lpData;
+            return;
+        }
+        result = waveInStart(hWaveIn);
+        if (result != MMSYSERR_NOERROR)
+        {
+            std::cerr << "Failed to start audio capture." << std::endl;
+            waveInClose(hWaveIn);
+            delete[] waveHdr.lpData;
+            return;
+        }
+        //Р’Р«Р’РћР”!
+
+        waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+        waveFormat.nChannels = 1; // РњРѕРЅРѕ
+        waveFormat.nSamplesPerSec = 48000; // Р§Р°СЃС‚РѕС‚Р° РґРёСЃРєСЂРµС‚РёР·Р°С†РёРё
+        waveFormat.wBitsPerSample = 16; // Р Р°Р·СЂСЏРґРЅРѕСЃС‚СЊ Р·РІСѓРєР°
+        waveFormat.nBlockAlign = waveFormat.nChannels * waveFormat.wBitsPerSample / 8;
+        waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
+        waveFormat.cbSize = 0;
+
+        result = waveOutOpen(&hWaveOut, 0, &waveFormat, 0, 0, CALLBACK_NULL);
+        if (result != MMSYSERR_NOERROR) {
+            std::cerr << "Failed to open audio device for playback." << std::endl;
+            return;
+        }
+    }
+    // РЎРѕР·РґР°РЅРёРµ СЃРѕР±С‹С‚РёСЏ РґР»СЏ СЃРёРіРЅР°Р»РёР·Р°С†РёРё Рѕ РіРѕС‚РѕРІРЅРѕСЃС‚Рё РґР°РЅРЅС‹С… РІ Р±СѓС„РµСЂРµ
+    HANDLE hEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    if(audiochoise == 1)
+    {
+        // Р—РґРµСЃСЊ Р·Р°С…РІР°С‚ Р·РІСѓРєР° РёР· СѓСЃС‚СЂРѕС„СЃС‚РІР° РІС‹РІРѕРґР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
     }
 
-    // Начало захвата аудио
-    waveHdr.lpData = new char[sizeBox];
-    waveHdr.dwBufferLength = sizeBox;
-    waveHdr.dwBytesRecorded = 0;
-    waveHdr.dwUser = 0;
-    waveHdr.dwFlags = 0;
-    waveHdr.dwLoops = 0;
+    
 
-    /*
-    waveHdr.lpData = new char[4096];
-    waveHdr.dwBufferLength = 4096;
-    waveHdr.dwBytesRecorded = 0;
-    waveHdr.dwUser = 0;
-    waveHdr.dwFlags = 0;
-    waveHdr.dwLoops = 0;
-    */
+    
 
-    result = waveInPrepareHeader(hWaveIn, &waveHdr, sizeof(WAVEHDR));
-    if (result != MMSYSERR_NOERROR)
-    {
-        std::cerr << "Failed to prepare audio header." << std::endl;
-        waveInClose(hWaveIn);
-        delete[] waveHdr.lpData;
-        return;
-    }
+    // Р—Р°РїРѕР»РЅРµРЅРёРµ Р±СѓС„РµСЂР° СЃ Р°СѓРґРёРѕРґР°РЅРЅС‹РјРё
+// РќР°РїСЂРёРјРµСЂ, РёСЃРїРѕР»СЊР·СѓСЏ waveHdr.lpData, РєРѕС‚РѕСЂС‹Рµ РІС‹ СѓР¶Рµ РїРѕР»СѓС‡РёР»Рё РёР· waveInProc
 
-    result = waveInAddBuffer(hWaveIn, &waveHdr, sizeof(WAVEHDR));
-    if (result != MMSYSERR_NOERROR)
-    {
-        std::cerr << "Failed to add buffer to audio device." << std::endl;
-        waveInClose(hWaveIn);
-        delete[] waveHdr.lpData;
-        return;
-    }
-
-    result = waveInStart(hWaveIn);
-    if (result != MMSYSERR_NOERROR)
-    {
-        std::cerr << "Failed to start audio capture." << std::endl;
-        waveInClose(hWaveIn);
-        delete[] waveHdr.lpData;
-        return;
-    }
 
     cout << "\n\nTo change the Mode, press 2/1/0\n";
 
     cout << "\n\nTo change the Second Mode, press 8/9\n";
 
-    //ф-я обратного вызова при вращении колеса мыши
+    //С„-СЏ РѕР±СЂР°С‚РЅРѕРіРѕ РІС‹Р·РѕРІР° РїСЂРё РІСЂР°С‰РµРЅРёРё РєРѕР»РµСЃР° РјС‹С€Рё
     glutMouseWheelFunc(mouseWheel);
-    // устанавливаем функцию, которая будет вызываться для перерисовки окна
+    // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј С„СѓРЅРєС†РёСЋ, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РІС‹Р·С‹РІР°С‚СЊСЃСЏ РґР»СЏ РїРµСЂРµСЂРёСЃРѕРІРєРё РѕРєРЅР°
     glutDisplayFunc(display);
-    // устанавливаем функцию, которая будет вызываться при изменении размеров окна
+    // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј С„СѓРЅРєС†РёСЋ, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РІС‹Р·С‹РІР°С‚СЊСЃСЏ РїСЂРё РёР·РјРµРЅРµРЅРёРё СЂР°Р·РјРµСЂРѕРІ РѕРєРЅР°
     glutReshapeFunc(reshape);
-    // устанавливаем функцию которая вызывается всякий раз, когда процессор простаивает
+    // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј С„СѓРЅРєС†РёСЋ РєРѕС‚РѕСЂР°СЏ РІС‹Р·С‹РІР°РµС‚СЃСЏ РІСЃСЏРєРёР№ СЂР°Р·, РєРѕРіРґР° РїСЂРѕС†РµСЃСЃРѕСЂ РїСЂРѕСЃС‚Р°РёРІР°РµС‚
     glutIdleFunc(simulation);
-    // основной цикл обработки сообщений ОС
+    // РѕСЃРЅРѕРІРЅРѕР№ С†РёРєР» РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№ РћРЎ
     glutMainLoop();
+    
 
-    // Остановка захвата аудио при завершении программы
-    result = waveInStop(hWaveIn);
-    if (result != MMSYSERR_NOERROR)
+
+    if (audiochoise == 0)
     {
-        std::cerr << "Failed to stop audio capture." << std::endl;
-    }
+        // РћСЃС‚Р°РЅРѕРІРєР° Р·Р°С…РІР°С‚Р° Р°СѓРґРёРѕ РїСЂРё Р·Р°РІРµСЂС€РµРЅРёРё РїСЂРѕРіСЂР°РјРјС‹
+        result = waveInStop(hWaveIn);
+        if (result != MMSYSERR_NOERROR)
+        {
+            std::cerr << "Failed to stop audio capture." << std::endl;
+        }
 
-    result = waveInUnprepareHeader(hWaveIn, &waveHdr, sizeof(WAVEHDR));
-    if (result != MMSYSERR_NOERROR)
+        result = waveInUnprepareHeader(hWaveIn, &waveHdr, sizeof(WAVEHDR));
+        if (result != MMSYSERR_NOERROR)
+        {
+            std::cerr << "Failed to unprepare audio header." << std::endl;
+        }
+
+        waveInClose(hWaveIn);
+        delete[] waveHdr.lpData;
+        // РћСЃРІРѕР±РѕР¶РґРµРЅРёРµ СЂРµСЃСѓСЂСЃРѕРІ
+        waveOutUnprepareHeader(hWaveOut, &waveOutHdr, sizeof(WAVEHDR));
+        waveOutClose(hWaveOut);
+    }
+    if (audiochoise == 1)
     {
-        std::cerr << "Failed to unprepare audio header." << std::endl;
+        // РћСЃРІРѕР±РѕР¶РґРµРЅРёРµ РїР°РјСЏС‚Рё
     }
-
-    waveInClose(hWaveIn);
-    cout << "I here" << endl;
-    delete[] waveHdr.lpData;
-    cout << "And here" << endl;
 
     return;
 }

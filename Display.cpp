@@ -1,90 +1,57 @@
-#include "Data.h"
+п»ї#include "Data.h"
 #include "Display.h"
 
 void display()
 {
-	// очистка буфера кадра
-	glClearColor(0.0, 0.0, 0.0, 0.0);
+	// РѕС‡РёСЃС‚РєР° Р±СѓС„РµСЂР° РєР°РґСЂР°
+	//glClearColor(1- float(waveHdr.lpData[0]) / 327.0f,
+	//	0,
+	//	float(waveHdr.lpData[0]) / 327.0f,
+	//	1.0);// vec4(r * 5, 1 - r * 10, 1, 1.0f);
+	/*glClearColor(BackgroundColor().x,
+		BackgroundColor().y,
+		BackgroundColor().z,
+		BackgroundColor()[3]);*/// vec4(r * 5, 1 - r * 10, 1, 1.0f);
+	glClearColor(0,
+		0,
+		0,
+		1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	// включение теста глубины (на всякий случай)
+	// РІРєР»СЋС‡РµРЅРёРµ С‚РµСЃС‚Р° РіР»СѓР±РёРЅС‹ (РЅР° РІСЃСЏРєРёР№ СЃР»СѓС‡Р°Р№)
 	glEnable(GL_DEPTH_TEST);
-	// вывод полигонов в виде линий с отсечением нелицевых граней
+	// РІС‹РІРѕРґ РїРѕР»РёРіРѕРЅРѕРІ РІ РІРёРґРµ Р»РёРЅРёР№ СЃ РѕС‚СЃРµС‡РµРЅРёРµРј РЅРµР»РёС†РµРІС‹С… РіСЂР°РЅРµР№
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
-	// формируем матрицу проекции
+	// С„РѕСЂРјРёСЂСѓРµРј РјР°С‚СЂРёС†Сѓ РїСЂРѕРµРєС†РёРё
 	mat4 projectionMatrix;
 	projectionMatrix = camera.getProjectionMatrix();
-	// генерирование матрицы камеры
+	// РіРµРЅРµСЂРёСЂРѕРІР°РЅРёРµ РјР°С‚СЂРёС†С‹ РєР°РјРµСЂС‹
 	mat4 viewMatrix;
-	// матрица камеры
+	// РјР°С‚СЂРёС†Р° РєР°РјРµСЂС‹
 	viewMatrix = camera.getViewMatrix();
 
-	// матрица модели
-	// активация шейдера 
+	// РјР°С‚СЂРёС†Р° РјРѕРґРµР»Рё
+	// Р°РєС‚РёРІР°С†РёСЏ С€РµР№РґРµСЂР° 
 	shader.activate();
-	// устанавливаем uniform-переменные для матриц проекции и наблюдения модели
+	// СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј uniform-РїРµСЂРµРјРµРЅРЅС‹Рµ РґР»СЏ РјР°С‚СЂРёС† РїСЂРѕРµРєС†РёРё Рё РЅР°Р±Р»СЋРґРµРЅРёСЏ РјРѕРґРµР»Рё
 	shader.setUniform("projectionMatrix", projectionMatrix);
 	srand(time(0));
 	int counter = 0;
 	int max = 0;
-	if (tempSimTime >= 0.0) {
-		tempSimTime = 0;
-		if (Mode == 1) {
-			for (auto& grObj : graphicObjects) {
-				// вычисляем матрицу наблюдения модели
-				//vec4 color = vec4(float(rand() % (100 - 0 + 1) + 0)/100, float(rand() % (100 - 0 + 1) + 0) / 100, float(rand() % (100 - 0 + 1) + 0) / 100, 1);
-				//grObj.setPosition(PositionsMicro[counter]);
-				//grObj.setColor(MicroColor);
-				//mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
-				//shader.setUniform("modelViewMatrix", modelViewMatrix);
 
-				//shader.setUniform("color", grObj.getColor());
-
-				//drawBox();
-				if (counter < sizeBox && PositionsMicro[counter] != NULL) {
-					if (counter % 2 == 0) {
-						counter++;
-						continue;
-					}
-					for (int j = 0; j < (int)PositionsMicro[counter]; j++)
-					{
-						if (j % 2 != 0 && j % 3 == 0) {
-							continue;
-						}
-						grObj.setPosition(j);
-						float r = float(j) / float(PositionsMicro[counter]);
-						//MicroColor = vec4(r, 1.0f, 1.0f, 1.0f);
-						MicroColor = vec4(r, 1 - r * 5, 1, 1.0f);
-						grObj.setColor(MicroColor);
-						mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
-
-						shader.setUniform("modelViewMatrix", modelViewMatrix);
-
-						shader.setUniform("color", grObj.getColor());
-						max = j;
-						drawBox();
-					}
-					//cout << PositionsMicro[counter] << endl;
-				}
-				counter++;
-			}
-		}
-
-	}
 	
 		
-	
-	if (Mode == 0) {
+	if (!Pictured) {
+
+		Pictured = 1;
+	}
+	if (Mode == 1) {
 		for (auto& grObj : graphicObjects) {
-			if (counter % 2 == 0) {
-				//counter++;
-				//continue;
-			}
-			// вычисляем матрицу наблюдения модели
+			// ГўГ»Г·ГЁГ±Г«ГїГҐГ¬ Г¬Г ГІГ°ГЁГ¶Гі Г­Г ГЎГ«ГѕГ¤ГҐГ­ГЁГї Г¬Г®Г¤ГҐГ«ГЁ
 			//vec4 color = vec4(float(rand() % (100 - 0 + 1) + 0)/100, float(rand() % (100 - 0 + 1) + 0) / 100, float(rand() % (100 - 0 + 1) + 0) / 100, 1);
-			//grObj.setPosition(PositionsMicro[counter]);
+			//grObj.setPosition(visualize[counter]);
 			//grObj.setColor(MicroColor);
 			//mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
 			//shader.setUniform("modelViewMatrix", modelViewMatrix);
@@ -92,10 +59,101 @@ void display()
 			//shader.setUniform("color", grObj.getColor());
 
 			//drawBox();
-			grObj.setPosition(PositionsMicro[counter]);
-			float r = float(PositionsMicro[counter]) / 327.0f;
-			MicroColor = vec4(r * 5, 1 - r * 10, 1, 1.0f);
-			//MicroColor = vec4(r, 1 - r * 5, 1, 1.0f);
+			if (counter < sizeBox && visualize[counter] != NULL) {
+				if (counter % 2 == 0) {
+					//counter++;
+					//continue;
+				}
+				for (int j = 0; j < abs((int)visualize[counter]); j++)
+				{
+					if (j % 2 != 0 && j % 3 == 0) {
+						continue;
+					}
+					grObj.setPosition(j);
+					float r = float(j) / float(abs(visualize[counter]));
+					//MicroColor = vec4(r, 1.0f, 1.0f, 1.0f);
+					MicroColor = vec4(r, 1 - r * 5, 1, 1.0f);
+					grObj.setColor(MicroColor);
+					mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
+
+					shader.setUniform("modelViewMatrix", modelViewMatrix);
+
+					shader.setUniform("color", grObj.getColor());
+					max = j;
+					drawBox();
+				}
+				//if (visualize[counter] > 0)
+				//{
+				//	for (int j = 0; j < (int)visualize[counter]; j++)
+				//	{
+				//		if (j % 2 != 0 && j % 3 == 0) {
+				//			continue;
+				//		}
+				//		grObj.setPosition(j);
+				//		float r = float(j) / float(visualize[counter]);
+				//		//MicroColor = vec4(r, 1.0f, 1.0f, 1.0f);
+				//		MicroColor = vec4(r, 1 - r * 5, 1, 1.0f);
+				//		grObj.setColor(MicroColor);
+				//		mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
+
+				//		shader.setUniform("modelViewMatrix", modelViewMatrix);
+
+				//		shader.setUniform("color", grObj.getColor());
+				//		max = j;
+				//		drawBox();
+				//	}
+				//}
+				//else
+				//{
+				//	for (int j = (int)visualize[counter]; j < 0; j++)
+				//	{
+				//		if (j % 2 != 0 && j % 3 == 0) {
+				//			continue;
+				//		}
+				//		grObj.setPosition(j);
+				//		float r = float(j) / float(visualize[counter]);
+				//		//MicroColor = vec4(r, 1.0f, 1.0f, 1.0f);
+				//		MicroColor = vec4(r, 1 - r * 5, 1, 1.0f);
+				//		grObj.setColor(MicroColor);
+				//		mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
+
+				//		shader.setUniform("modelViewMatrix", modelViewMatrix);
+
+				//		shader.setUniform("color", grObj.getColor());
+				//		max = j;
+				//		drawBox();
+				//	}
+				//}
+				//cout << visualize[counter] << endl;
+			}
+			counter++;
+		}
+	}
+	if (Mode == 0) {
+		for (auto& grObj : graphicObjects) {
+			if (counter % 2 == 0) {
+				//counter++;
+				//continue;
+			}
+			// РІС‹С‡РёСЃР»СЏРµРј РјР°С‚СЂРёС†Сѓ РЅР°Р±Р»СЋРґРµРЅРёСЏ РјРѕРґРµР»Рё
+			//vec4 color = vec4(float(rand() % (100 - 0 + 1) + 0)/100, float(rand() % (100 - 0 + 1) + 0) / 100, float(rand() % (100 - 0 + 1) + 0) / 100, 1);
+			//grObj.setPosition(visualize[counter]);
+			//grObj.setColor(MicroColor);
+			//mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
+			//shader.setUniform("modelViewMatrix", modelViewMatrix);
+
+			//shader.setUniform("color", grObj.getColor());
+
+			//drawBox();
+
+			if (Recalculate == 1) {
+				grObj.recalculateModelMatrix();
+			}
+
+
+			grObj.setPosition(visualize[counter]);
+			
+			MicroColor = Color(counter);
 			grObj.setColor(MicroColor);
 			mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
 
@@ -106,17 +164,17 @@ void display()
 			drawBox();
 			counter++;
 		}
-	
+	}
 
-		if (Mode == 3) {
+		if (Mode == 2) {
 			for (auto& grObj : graphicObjects) {
 				if (counter % 2 == 0) {
 					//counter++;
 					//continue;
 				}
-				// вычисляем матрицу наблюдения модели
+				// РІС‹С‡РёСЃР»СЏРµРј РјР°С‚СЂРёС†Сѓ РЅР°Р±Р»СЋРґРµРЅРёСЏ РјРѕРґРµР»Рё
 				//vec4 color = vec4(float(rand() % (100 - 0 + 1) + 0)/100, float(rand() % (100 - 0 + 1) + 0) / 100, float(rand() % (100 - 0 + 1) + 0) / 100, 1);
-				//grObj.setPosition(PositionsMicro[counter]);
+				//grObj.setPosition(visualize[counter]);
 				//grObj.setColor(MicroColor);
 				//mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
 				//shader.setUniform("modelViewMatrix", modelViewMatrix);
@@ -124,9 +182,191 @@ void display()
 				//shader.setUniform("color", grObj.getColor());
 
 				//drawBox();
-				grObj.setPosition(PositionsMicro[counter]);
-				float r = float(PositionsMicro[counter]) / 327.0f;
-				MicroColor = vec4(r * 5, 1 - r * 10, 1, 1.0f);
+				
+				//vec3 PositionThis = vec3(100 * sin(visualize[counter]) * cos(visualize[counter]), 100 * sin(visualize[counter]) * sin(visualize[counter]), 100 * cos(visualize[counter]));
+				//grObj.setPosition(PositionThis);
+				grObj.setSphearePosition((float)visualize[counter] / 128.0 * 3.14, (float)counter / (float)sizeBox * 3.14);
+				//cout << 'a ' << (float)visualize[counter] / 128.0 * 3.14 << endl;
+				//cout << 'b ' << (float)counter / (float)sizeBox * 3.14 << endl;
+				MicroColor = Color(counter);
+				//MicroColor = vec4(r, 1 - r * 5, 1, 1.0f);
+				grObj.setColor(MicroColor);
+				mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
+
+				shader.setUniform("modelViewMatrix", modelViewMatrix);
+
+				shader.setUniform("color", grObj.getColor());
+
+				drawBox();
+				counter++;
+			}
+		}
+
+		if (Mode == 3) {
+			for (auto& grObj : graphicObjects) {
+				if (counter % 2 == 0) {
+					//counter++;
+					//continue;
+				}
+				// РІС‹С‡РёСЃР»СЏРµРј РјР°С‚СЂРёС†Сѓ РЅР°Р±Р»СЋРґРµРЅРёСЏ РјРѕРґРµР»Рё
+				//vec4 color = vec4(float(rand() % (100 - 0 + 1) + 0)/100, float(rand() % (100 - 0 + 1) + 0) / 100, float(rand() % (100 - 0 + 1) + 0) / 100, 1);
+				//grObj.setPosition(visualize[counter]);
+				//grObj.setColor(MicroColor);
+				//mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
+				//shader.setUniform("modelViewMatrix", modelViewMatrix);
+
+				//shader.setUniform("color", grObj.getColor());
+
+				//drawBox();
+
+				//vec3 PositionThis = vec3(100 * sin(visualize[counter]) * cos(visualize[counter]), 100 * sin(visualize[counter]) * sin(visualize[counter]), 100 * cos(visualize[counter]));
+				//grObj.setPosition(PositionThis);
+				grObj.setSphearePosition2((float)counter / (float)sizeBox * 120 + 10, (float)visualize[counter] / 128.0 * 3.14);
+				//cout << 'a ' << (float)visualize[counter] / 128.0 * 3.14 << endl;
+				//cout << "radius " << (float)counter / (float)sizeBox * 120 << endl;
+				MicroColor = Color(counter);
+				//MicroColor = vec4(r, 1 - r * 5, 1, 1.0f);
+				grObj.setColor(MicroColor);
+				mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
+
+				shader.setUniform("modelViewMatrix", modelViewMatrix);
+
+				shader.setUniform("color", grObj.getColor());
+
+
+				drawBox(visualize[counter]/2);
+				counter++;
+			}
+		}
+
+		if (Mode == 4) {
+			for (auto& grObj : graphicObjects) {
+				if (counter % 2 == 0) {
+					//counter++;
+					//continue;
+				}
+				// РІС‹С‡РёСЃР»СЏРµРј РјР°С‚СЂРёС†Сѓ РЅР°Р±Р»СЋРґРµРЅРёСЏ РјРѕРґРµР»Рё
+				//vec4 color = vec4(float(rand() % (100 - 0 + 1) + 0)/100, float(rand() % (100 - 0 + 1) + 0) / 100, float(rand() % (100 - 0 + 1) + 0) / 100, 1);
+				//grObj.setPosition(visualize[counter]);
+				//grObj.setColor(MicroColor);
+				//mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
+				//shader.setUniform("modelViewMatrix", modelViewMatrix);
+
+				//shader.setUniform("color", grObj.getColor());
+
+				//drawBox();
+
+				//vec3 PositionThis = vec3(100 * sin(visualize[counter]) * cos(visualize[counter]), 100 * sin(visualize[counter]) * sin(visualize[counter]), 100 * cos(visualize[counter]));
+				//grObj.setPosition(PositionThis);
+				grObj.setSphearePosition((float)counter / (float)sizeBox * 120 + 10, (float)visualize[counter] / 128.0 * 3.14);
+				//cout << 'a ' << (float)visualize[counter] / 128.0 * 3.14 << endl;
+				//cout << "radius " << (float)counter / (float)sizeBox * 120 << endl;
+				MicroColor = Color(counter);
+				//MicroColor = vec4(r, 1 - r * 5, 1, 1.0f);
+				grObj.setColor(MicroColor);
+				mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
+
+				shader.setUniform("modelViewMatrix", modelViewMatrix);
+
+				shader.setUniform("color", grObj.getColor());
+
+				drawBox();
+				counter++;
+			}
+		}
+
+		if (Mode == 5) {
+			for (auto& grObj : graphicObjects) {
+				if (counter % 2 == 0) {
+					//counter++;
+					//continue;
+				}
+				// РІС‹С‡РёСЃР»СЏРµРј РјР°С‚СЂРёС†Сѓ РЅР°Р±Р»СЋРґРµРЅРёСЏ РјРѕРґРµР»Рё
+				//vec4 color = vec4(float(rand() % (100 - 0 + 1) + 0)/100, float(rand() % (100 - 0 + 1) + 0) / 100, float(rand() % (100 - 0 + 1) + 0) / 100, 1);
+				//grObj.setPosition(visualize[counter]);
+				//grObj.setColor(MicroColor);
+				//mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
+				//shader.setUniform("modelViewMatrix", modelViewMatrix);
+
+				//shader.setUniform("color", grObj.getColor());
+
+				//drawBox();
+
+				//vec3 PositionThis = vec3(100 * sin(visualize[counter]) * cos(visualize[counter]), 100 * sin(visualize[counter]) * sin(visualize[counter]), 100 * cos(visualize[counter]));
+				//grObj.setPosition(PositionThis);
+				grObj.setSphearePosition((float)counter / (float)sizeBox * 3.14, (float)visualize[counter] / 128.0 * 3.14);
+				//cout << 'a ' << (float)visualize[counter] / 128.0 * 3.14 << endl;
+				//cout << 'b ' << (float)counter / (float)sizeBox * 3.14 << endl;
+				MicroColor = Color(counter);
+				//MicroColor = vec4(r, 1 - r * 5, 1, 1.0f);
+				grObj.setColor(MicroColor);
+				mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
+
+				shader.setUniform("modelViewMatrix", modelViewMatrix);
+
+				shader.setUniform("color", grObj.getColor());
+
+				drawBox();
+				counter++;
+			}
+		}
+		if (Mode == 6) {
+			for (auto& grObj : graphicObjects) {
+				if (counter % 2 == 0) {
+					//counter++;
+					//continue;
+				}
+				// РІС‹С‡РёСЃР»СЏРµРј РјР°С‚СЂРёС†Сѓ РЅР°Р±Р»СЋРґРµРЅРёСЏ РјРѕРґРµР»Рё
+				//vec4 color = vec4(float(rand() % (100 - 0 + 1) + 0)/100, float(rand() % (100 - 0 + 1) + 0) / 100, float(rand() % (100 - 0 + 1) + 0) / 100, 1);
+				//grObj.setPosition(visualize[counter]);
+				//grObj.setColor(MicroColor);
+				//mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
+				//shader.setUniform("modelViewMatrix", modelViewMatrix);
+
+				//shader.setUniform("color", grObj.getColor());
+
+				//drawBox();
+
+				//vec3 PositionThis = vec3(100 * sin(visualize[counter]) * cos(visualize[counter]), 100 * sin(visualize[counter]) * sin(visualize[counter]), 100 * cos(visualize[counter]));
+				//grObj.setPosition(PositionThis);
+				grObj.setSphearePosition3((float)visualize[counter] * 60 + 10, 
+					(float)counter / (float)sizeBox / 128.0 * 3.14);
+				MicroColor = Color2(counter);
+				grObj.setColor(MicroColor);
+				mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
+
+				shader.setUniform("modelViewMatrix", modelViewMatrix);
+
+				shader.setUniform("color", grObj.getColor());
+
+				drawBox((float)visualize[counter]);
+				counter++;
+			}
+		}
+		if (Mode == 7) {
+			for (auto& grObj : graphicObjects) {
+				if (counter % 2 == 0) {
+					//counter++;
+					//continue;
+				}
+				// РІС‹С‡РёСЃР»СЏРµРј РјР°С‚СЂРёС†Сѓ РЅР°Р±Р»СЋРґРµРЅРёСЏ РјРѕРґРµР»Рё
+				//vec4 color = vec4(float(rand() % (100 - 0 + 1) + 0)/100, float(rand() % (100 - 0 + 1) + 0) / 100, float(rand() % (100 - 0 + 1) + 0) / 100, 1);
+				//grObj.setPosition(visualize[counter]);
+				//grObj.setColor(MicroColor);
+				//mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
+				//shader.setUniform("modelViewMatrix", modelViewMatrix);
+
+				//shader.setUniform("color", grObj.getColor());
+
+				//drawBox();
+
+				//vec3 PositionThis = vec3(100 * sin(visualize[counter]) * cos(visualize[counter]), 100 * sin(visualize[counter]) * sin(visualize[counter]), 100 * cos(visualize[counter]));
+				//grObj.setPosition(PositionThis);
+				grObj.setPolarPosition((float)counter / (float)sizeBox * 3.14, 
+					(float)visualize[counter]);
+				//cout << 'a ' << (float)visualize[counter] / 128.0 * 3.14 << endl;
+				//cout << 'b ' << (float)counter / (float)sizeBox * 3.14 << endl;
+				MicroColor = Color2(counter);
 				//MicroColor = vec4(r, 1 - r * 5, 1, 1.0f);
 				grObj.setColor(MicroColor);
 				mat4 modelViewMatrix = viewMatrix * grObj.getModelMatrix();
@@ -141,9 +381,9 @@ void display()
 		}
 	
 
-	// смена переднего и заднего буферов
+	// СЃРјРµРЅР° РїРµСЂРµРґРЅРµРіРѕ Рё Р·Р°РґРЅРµРіРѕ Р±СѓС„РµСЂРѕРІ
 	glutSwapBuffers();
-	// вычисление FPS и его вывод в заголовок окна
+	// РІС‹С‡РёСЃР»РµРЅРёРµ FPS Рё РµРіРѕ РІС‹РІРѕРґ РІ Р·Р°РіРѕР»РѕРІРѕРє РѕРєРЅР°
 	char windowTitle[128];
 	int FPS = getFps();
 	sprintf_s(windowTitle, 128, "Laba_03 [%i FPS]", FPS);

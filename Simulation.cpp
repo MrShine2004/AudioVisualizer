@@ -72,7 +72,6 @@ void keyboard(float& dx, float& dz) {
 	if (GetAsyncKeyState(VK_LSHIFT))
 	{
 		camera.setMoveSpeed(-camera.getMoveSpeed()/100);
-		cout << camera.getPosition().x << " " << camera.getPosition().y << " " << camera.getPosition().z << " \n";
 	}
 	if (GetAsyncKeyState(48))
 	{
@@ -90,16 +89,103 @@ void keyboard(float& dx, float& dz) {
 		Mode = 2;
 		cout << "Mode: " << Mode << " \n";
 	}
+	if (GetAsyncKeyState(51))
+	{
+		Mode = 3;
+		cout << "Mode: " << Mode << " \n";
+	}
+	if (GetAsyncKeyState(52))
+	{
+		Mode = 4;
+		cout << "Mode: " << Mode << " \n";
+	}
+	if (GetAsyncKeyState(53))
+	{
+		Mode = 5;
+		cout << "Mode: " << Mode << " \n";
+	}
+	if (GetAsyncKeyState(54))
+	{
+		Mode = 6;
+		cout << "Mode: " << Mode << " \n";
+	}
+	if (GetAsyncKeyState(55))
+	{
+		Mode = 7;
+		cout << "Mode: " << Mode << " \n";
+	}
+
 	if (GetAsyncKeyState(56))
 	{
 		SecondMode = 8;
 		cout << "Second Mode (Module Off): " << SecondMode << " \n";
+		Sleep(150);
 	}
 
 	if (GetAsyncKeyState(57))
 	{
 		SecondMode = 9;
 		cout << "Second Mode (Module On): " << SecondMode << " \n";
+		Sleep(150);
+	}
+
+	if (GetAsyncKeyState(82))
+	{
+		Recalculate = Recalculate * -1;
+		cout << "Recalculate svitch: " << Recalculate << " \n";
+		Sleep(150);
+	}
+
+	if (GetAsyncKeyState(81))
+	{
+		camera.move(0.1);
+	}
+	if (GetAsyncKeyState(69))
+	{
+		camera.move(-0.1);
+	}
+	if (GetAsyncKeyState(79))
+	{
+		if (Out)
+		{
+			Out = false;
+		}
+		else {
+			Out = true;
+		}
+		cout << "Out: " << Out << " \n";
+		Sleep(150);
+	}
+
+	// Уменьшить частоту среза ([)
+	if (GetAsyncKeyState(219)) 
+	{
+		cutFrq -= 100;
+		cout << "cutFreq = " << cutFrq << endl;
+	}
+	// Увеличить частоту среза (])
+	if (GetAsyncKeyState(221))
+	{
+		cutFrq += 100;
+		cout << "cutFreq = " << cutFrq << endl;
+	}
+	//Режим фильтра 0 (z)
+	if (GetAsyncKeyState(90))
+	{
+		filterMode = 0;
+		cout << "filterMode = BIH " << filterMode << endl;
+	}
+	//Режим фильтра 1 (x)
+	if (GetAsyncKeyState(88))
+	{
+		filterMode = 1;
+		cout << "filterMode = KIH " << filterMode << endl;
+	}
+	//Режим фильтра 2 (c)
+	if (GetAsyncKeyState(67))
+	{
+		camera.center();
+		cout << "camera center\n";
 	}
 }
 

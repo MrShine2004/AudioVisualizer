@@ -17,18 +17,23 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "GraphicObject.h"
+#include "Audio.h"
 
 extern float FrameTime;
 extern int FPS;
 extern float simulationTime, tempSimTime ;
 extern int OldFPS;
-extern vec4 MicroColor; 
 extern const int sizeBox;
-extern float PositionsMicro[500];
+extern vec4 MicroColor;
 extern int Mode;
 extern int SecondMode;
 extern bool OutputType;
-
+extern int Recalculate;
+extern vec4 Color(int counter);
+extern vec4 Color2(int counter);
+extern vec4 ColorRadian(int counter);
+extern vec4 SpaceColor(int counter);
+extern vec4 BackgroundColor();
 
 // используемый шейдер (пока только один)
 extern Shader shader;
@@ -38,6 +43,10 @@ extern Camera camera;
 extern vector<GraphicObject> graphicObjects;
 // функция для вывода квадрата с ребрами равными единице (от -0.5 до +0.5)
 extern void drawBox();
+extern void drawBox(int amplitude);
 extern void InitializingObjects();
 
-
+extern double cutFrq;
+extern int filterMode;
+extern bool Pictured;
+extern vector<char> visualize;

@@ -28,6 +28,11 @@ public:
 	// получить различные параметры
 	glm::vec4& getColor();
 	glm::mat4& getModelMatrix();
+	void setSphearePosition(float a, float b);
+	void setSphearePosition2(float a, float b);
+	void setSphearePosition3(float a, float b);
+	void setPolarPosition(float x, float y);
+	void recalculateModelMatrix();
 private:
 	// цвет объекта
 	glm::vec3 position;
