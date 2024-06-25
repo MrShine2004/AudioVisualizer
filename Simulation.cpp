@@ -1,7 +1,6 @@
 #include "Simulation.h"
 
 
-
 POINT previousMouseXY;
 POINT currentMouseXY;
 
@@ -179,6 +178,7 @@ void keyboard(float& dx, float& dz) {
 	if (GetAsyncKeyState(88))
 	{
 		filterMode = 1;
+		toggleFullscreen();
 		cout << "filterMode = KIH " << filterMode << endl;
 	}
 	//Режим фильтра 2 (c)

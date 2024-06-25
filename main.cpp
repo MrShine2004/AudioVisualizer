@@ -150,9 +150,9 @@ void main(int argc, char** argv)
     glutInitContextVersion(3, 3);
     glutInitContextProfile(GLUT_CORE_PROFILE);
     // устанавливаем верхний левый угол окна
-    glutInitWindowPosition(300, 100);
+    glutInitWindowPosition(windowPosX, windowPosY);
     // устанавливаем размер окна
-    glutInitWindowSize(800, 600);
+    glutInitWindowSize(windowWidth, windowHeight);
     // создание окна
     glutCreateWindow("laba_01");
 

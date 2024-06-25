@@ -23,6 +23,29 @@ Camera camera;
 // СПИСОК ГРАФИЧЕСКИХ ОБЪЕКТОВ ДЛЯ ВЫВОДА НА ЭКРАН
 vector<GraphicObject> graphicObjects;
 
+// Глобальные переменные для управления полноэкранным режимом
+bool isFullscreen = false;
+int windowWidth = 800;  // начальная ширина окна
+int windowHeight = 600; // начальная высота окна
+int windowPosX = 0;   // начальная позиция окна по X
+int windowPosY = 0;   // начальная позиция окна по Y
+
+void toggleFullscreen() {
+	if (isFullscreen) {
+		glutReshapeWindow(windowWidth, windowHeight);
+		glutPositionWindow(windowPosX, windowPosY);
+		isFullscreen = false;
+	}
+	else {
+		windowWidth = glutGet(GLUT_WINDOW_WIDTH);
+		windowHeight = glutGet(GLUT_WINDOW_HEIGHT);
+		windowPosX = glutGet(GLUT_WINDOW_X);
+		windowPosY = glutGet(GLUT_WINDOW_Y);
+		glutFullScreen();
+		isFullscreen = true;
+	}
+}
+
 void InitializingObjects() 
 {
 	vec4 color = vec4(1, 0, 0, 1);
